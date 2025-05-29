@@ -1,16 +1,17 @@
 import mongoose from 'mongoose'
 
-const userDivide = new mongoose.Schema({
+const user = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Usuario',
+    ref: 'Users',
     required: true
   }
 })
 
 const gastoSchema = new mongoose.Schema({
-  nombre: {
+  titulo: {
     type: String,
+    unique: true,
     required: true
   },
   descripcion: {
@@ -21,7 +22,12 @@ const gastoSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  seDivideEn: [userDivide],
+  creadoPor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Users',
+    required: true
+  },
+  seDivide: [user],
   fechaCreacion: {
     type: Date,
     default: Date.now

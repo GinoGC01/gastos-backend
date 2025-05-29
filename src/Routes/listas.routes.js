@@ -1,5 +1,5 @@
 import express from 'express'
-import { ListaController } from '../Controllers/listasController'
+import { ListaController } from '../Controllers/listasController.js'
 
 const listasRoutes = express.Router()
 
