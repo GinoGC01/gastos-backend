@@ -9,8 +9,12 @@ export const verificationIfExistUser = async ({ email }) => {
 }
 
 export const verificationLoginUser = async ({ email, pass }) => {
+  if (!email) return { message: 'Ingrese el Email para continuar', status: false }
+  if (!pass) return { message: 'Ingrese el password para continuar', status: false }
+
   const userFinded = await User.find({ email })
-  if (!userFinded) return { message: 'Usuario no encontrado', status: false }
+  console.log(userFinded)
+  if (userFinded.length === 0) return { message: 'Usuario no Registrado', status: false }
   const hassPass = await bcrypt.compare(pass, userFinded[0].password)
   if (!hassPass) return { message: 'Contraseña incorrecta', status: false }
   return {

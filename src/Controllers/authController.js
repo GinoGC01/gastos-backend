@@ -14,7 +14,7 @@ export class AuthController {
     try {
       const acceptedUser = await verificationLoginUser({ email, pass })
 
-      if (!acceptedUser.status) return res.json({ message: acceptedUser.message })
+      if (!acceptedUser.status) return res.json({ message: acceptedUser.message, status: acceptedUser.status })
 
       if (acceptedUser.status) {
         const token = jwt.sign({
@@ -27,12 +27,12 @@ export class AuthController {
         })
 
         // Guardar el token en una cookie HTTP Only
-        res.cookie('access_token', token, {
-          httpOnly: true, // evita acceso desde JS del cliente
+        res.cookie('token', token, {
+          // httpOnly: true, // evita acceso desde JS del cliente
           // secure: process.env.NODE_ENV === 'production', // sólo en HTTPS en producción
           sameSite: 'strict', // previene CSRF
           maxAge: 3600000 // 1 hora
-        }).json({ message: 'Sesion Iniciada con exito' })
+        }).json({ message: 'Sesion Iniciada con exito', user: acceptedUser.user, status: true })
       }
     } catch (error) {
       console.error(error)
@@ -42,7 +42,7 @@ export class AuthController {
 
   static async logout (req, res) {
     try {
-      res.clearCookie('access_token').json({ message: 'sesion cerrada', closeStatus: true })
+      res.clearCookie('token').json({ message: 'sesion cerrada', status: true })
     } catch (error) {
       console.error(error)
       res.status(404)
@@ -66,7 +66,7 @@ export class AuthController {
       })
       const user = await newUser.save()
       if (!user) return res.json({ message: 'Error al guardar el usuario' })
-      res.json({ message: 'Usuario registrado con exito' })
+      res.json({ message: 'Usuario registrado con exito', status: true })
     } catch (error) {
       console.error(error)
       res.status(404)
@@ -83,5 +83,27 @@ export class AuthController {
 
   static deleteAcount (req, res) {
     // to do
+  }
+
+  static async verifyToken (req, res) {
+    const { token } = req.cookies
+
+    if (!token) return res.status(401).json({ message: 'Acceso no autorizado ' })
+
+    jwt.verify(token, JWT_KEY, async (err, user) => {
+      if (err) return res.status(401).json({ message: 'Acceso no autorizado' })
+
+      const usuario = await User.findById(user.id)
+      if (!usuario) return res.status(401).json({ message: 'Usuario no encontrado' })
+
+      return res.json({
+        status: true,
+        user: {
+          id: usuario.id,
+          nombre: usuario.nombre,
+          email: usuario.email
+        }
+      })
+    })
   }
 }

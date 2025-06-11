@@ -1,6 +1,7 @@
 import cors from 'cors'
 const ACCEPTED_ORIGINS = [
-  process.env.ACEPTED_ORIGIN_FRONT
+  process.env.ACEPTED_ORIGIN_FRONT,
+  'http://localhost:5173'
 ]
 
 export const CORS = ({ acceptedOrigins = ACCEPTED_ORIGINS } = {}) =>
@@ -15,5 +16,6 @@ export const CORS = ({ acceptedOrigins = ACCEPTED_ORIGINS } = {}) =>
       }
 
       return callback(new Error('Not allowed by CORS'))
-    }
+    },
+    credentials: true
   })
