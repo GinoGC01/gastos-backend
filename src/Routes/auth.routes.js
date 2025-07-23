@@ -3,6 +3,7 @@ import { AuthController } from '../Controllers/authController.js'
 
 const authRoutes = express.Router()
 
+authRoutes.get('/usuarios', AuthController.getUsers)
 authRoutes.post('/login', AuthController.login)
 authRoutes.get('/logout', AuthController.logout)
 authRoutes.post('/register', AuthController.register)

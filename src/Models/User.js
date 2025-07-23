@@ -11,7 +11,8 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
   rol: {
     type: String,
@@ -20,7 +21,12 @@ const userSchema = new mongoose.Schema({
   fechaRegistro: {
     type: Date,
     default: Date.now
-  }
+  },
+  activo: {
+    type: Boolean,
+    default: false
+  },
+  expiresAt: { type: Date }
 })
 
 export default mongoose.model('Users', userSchema)
