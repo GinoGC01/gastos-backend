@@ -17,7 +17,6 @@ export class AuthController {
           email: user.email
         })
       })
-      // console.log(newUsers)
       res.json({ users: newUsers, status: true })
     } catch (error) {
       console.error(error)
@@ -33,7 +32,8 @@ export class AuthController {
       const acceptedUser = await verificationLoginUser({ email, pass })
 
       if (!acceptedUser.status) return res.json({ message: acceptedUser.message, status: acceptedUser.status })
-      console.log('Activo')
+
+
       if (acceptedUser.status) {
         const token = jwt.sign({
           id: acceptedUser.user.id,
@@ -44,6 +44,12 @@ export class AuthController {
           expiresIn: '1h'
           // expiresIn: '15s'
         })
+
+        // Actualizar el estado del usuario a activo
+        const usuario = await User.findById(acceptedUser.user.id)
+        if (!usuario) return res.status(404).json({ message: 'Usuario no encontrado', status: false })
+        usuario.activo = true
+        await usuario.save()
 
         // Guardar el token en una cookie HTTP Only
         res.cookie('token', token, {
@@ -133,12 +139,6 @@ export class AuthController {
 
     jwt.verify(token, JWT_KEY, async (err, user) => {
       if (err) {
-        if (err.name === 'TokenExpiredError') {
-          const decoded = jwt.decode(token) // decodificás sin verificar
-          if (decoded?.id) {
-            await User.findByIdAndUpdate(decoded.id, { activo: false })
-          }
-        }
         return res.status(403).json({ message: 'Token inválido o expirado' })
       }
 

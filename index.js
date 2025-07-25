@@ -1,8 +1,8 @@
 import app from './server.js'
 import { connectDB } from './src/Config/db.js'
 import { iniciarCronUsuarios } from './src/Cron/actualizarUsuarios.js'
+import { PORT } from './src/config.js'
 
-const PORT = process.env.PORT || 3000
 
 connectDB()
   .then(() => {
