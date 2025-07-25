@@ -1,7 +1,8 @@
 import cors from 'cors'
+import { ACEPTED_ORIGIN_FRONT } from '../config.js'
+
 const ACCEPTED_ORIGINS = [
-  process.env.ACEPTED_ORIGIN_FRONT,
-  'http://localhost:5173'
+  ACEPTED_ORIGIN_FRONT
 ]
 
 export const CORS = ({ acceptedOrigins = ACCEPTED_ORIGINS } = {}) =>
