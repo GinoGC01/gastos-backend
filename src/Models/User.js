@@ -26,7 +26,9 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  expiresAt: { type: Date }
+  expiresAt: {
+    type: Date
+  }
 })
 
 export default mongoose.model('Users', userSchema)

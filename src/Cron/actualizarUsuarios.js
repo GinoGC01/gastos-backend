@@ -2,44 +2,44 @@ import cron from 'node-cron'
 import User from '../Models/User.js'
 
 export const iniciarCronUsuarios = () => {
-  cron.schedule('*/1 * * * *', async () => { // cada 5 minutos
-    const ahora = new Date()
+  // Ejecuta cada 5 minutos
+  // esta cada 1 para el testeo
+  // eslint-disable-next-line space-before-function-paren
+  cron.schedule('*/5 * * * *', async () => {
+    const ahora = new Date() // objeto Date para comparar con expiresAt (Date)
+
     console.log(`[CRON] Tick at ${ahora.toISOString()}`)
 
     try {
-      const vencidos = await User.find({ activo: true, expiresAt: { $lte: ahora } })
+      // Buscar usuarios activos cuyo expiresAt ya pasó
+      const vencidos = await User.find({
+        activo: true,
+        expiresAt: { $lte: ahora }
+      })
 
       if (vencidos.length === 0) {
         console.log('[CRON] No hay usuarios vencidos aún.')
-      } else {
-        console.log(`[CRON] Usuarios vencidos encontrados: ${vencidos.length}`)
-        console.table(vencidos.map(u => ({
+        return
+      }
+
+      console.log(`[CRON] Usuarios vencidos encontrados: ${vencidos.length}`)
+      console.table(
+        vencidos.map((u) => ({
           email: u.email,
           activo: u.activo,
           expiresAt: u.expiresAt.toISOString()
-        })))
+        }))
+      )
 
-        const resultado = await User.updateMany(
-          { activo: true, expiresAt: { $lte: ahora } },
-          { $set: { activo: false } }
-        )
+      // Desactivar los usuarios vencidos
+      const resultado = await User.updateMany(
+        { activo: true, expiresAt: { $lte: ahora } },
+        { $set: { activo: false } }
+      )
 
-        console.log(`[CRON] Usuarios desactivados automáticamente: ${resultado.modifiedCount}`)
-      }
-    } catch (err) {
-      console.error('[CRON] Error en verificación:', err.message)
+      console.log(`[CRON] Usuarios desactivados automáticamente: ${resultado.modifiedCount}`)
+    } catch (error) {
+      console.error('[CRON] Error en verificación:', error.message)
     }
   })
 }
-
-// Cuando el usuario inicia sesión:
-
-// Se activa (activo: true)
-
-// Se le asigna una expiración (expiresAt: Date.now() + 1h)
-
-// Aunque no interactúe más:
-
-// Cada 5 minutos el cron revisa si algún expiresAt venció.
-
-// Si sí → actualiza activo: false.
